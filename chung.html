@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Tôi Tự Học — Trình đọc sách</title>
+  <!-- Font Awesome CDN (v6) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Left sliding panels (TOC, Highlights, Settings) -->
+  <div id="leftPanels">
+    <aside id="tocPanel" class="panel-left" aria-hidden="true">
+      <h3>Mục lục</h3>
+      <div id="tocList"></div>
+    </aside>
+
+    <aside id="highlightPanelLeft" class="panel-left" aria-hidden="true">
+      <h3>Highlights</h3>
+      <div id="hlListLeft"></div>
+    </aside>
+
+    <aside id="settingsPanelLeft" class="panel-left" aria-hidden="true">
+      <h3>Tùy chỉnh đọc</h3>
+      <label>Phông chữ</label>
+      <select id="fontSelect">
+        <option value="'Times New Roman', serif">Times New Roman</option>
+        <option value="Arial, sans-serif">Arial</option>
+        <option value="Georgia, serif">Georgia</option>
+        <option value="'Roboto', sans-serif">Roboto</option>
+      </select>
+      <label>Cỡ chữ (px)</label>
+      <input id="fontSize" type="number" min="12" max="32" value="16" />
+      <label>Màu chữ</label>
+      <input id="fontColor" type="color" value="#111111" />
+      <label>Giãn dòng</label>
+      <input id="lineHeight" type="number" min="1" max="2" step="0.1" value="1.6" />
+      <label>Nền</label>
+      <div class="bg-buttons">
+        <button class="bg-swatch" data-bg="#ffffff" style="background:#ffffff"></button>
+        <button class="bg-swatch" data-bg="#fdf6e3" style="background:#fdf6e3"></button>
+        <button class="bg-swatch" data-bg="#f3f7ff" style="background:#f3f7ff"></button>
+        <button class="bg-swatch" data-bg="#0b1220" style="background:#0b1220"></button>
+        <input type="color" id="bgColorPicker" value="#ffffff">
+      </div>
+      <label>Màu highlight</label>
+      <input id="hlColor" type="color" value="#fff17a" />
+      <label>Tốc độ cuộn</label>
+      <input id="speedRange" type="range" min="10" max="200" value="80" />
+      <div style="display:flex;gap:8px;margin-top:10px">
+        <button id="resetBtn" class="primary icon-btn" title="Đặt lại">Đặt lại</button>
+      </div>
+      <div>
+  <label for="audioSpeed">Tốc độ âm thanh:</label>
+  <select id="audioSpeed">
+    <option value="0.25">0.25x</option>
+    <option value="0.5">0.5x</option>
+    <option value="0.75">0.75x</option>
+    <option value="1" selected>1x (Chuẩn)</option>
+    <option value="1.25">1.25x</option>
+    <option value="1.5">1.5x</option>
+    <option value="1.75">1.75x</option>
+    <option value="2">2x</option>
+  </select>
+</div>
+
+    </aside>
+  </div>
+
+  <!-- Header -->
+  <header id="topbar">
+  <div class="left">
+    <button id="homeBtn" class="icon-btn" title="Trang chủ">
+      <i class="fa fa-house"></i>
+    </button>
+  </div>
+
+  <!-- Tiêu đề căn giữa -->
+  <span class="header-center">Tôi đi học</span>
+
+  <div class="right">
+    <div class="search-wrap">
+      <input id="searchInput" placeholder="Tìm trong sách (nhấn Enter)" />
+      <button id="searchBtn" class="icon-btn" title="Tìm kiếm">
+        <i class="fa fa-search"></i>
+      </button>
+    </div>
+    <button id="shareBtn" class="icon-btn" title="Chia sẻ">
+      <i class="fa fa-share-alt"></i>
+    </button>
+    <button id="accountBtn" class="icon-btn" title="Tài khoản">
+      <i class="fa fa-user-circle"></i>
+    </button>
+  </div>
+</header>
+
+  <!-- Main viewer -->
+  <main id="viewer" tabindex="0">
+    <button id="prevChap" class="nav-arrow left" title="Chương trước"><i class="fa fa-chevron-left"></i></button>
+
+    <!-- NOTE: #book will contain either inline content or an iframe for chapter files -->
+    <article id="book" role="main" aria-label="Nội dung sách"></article>
+
+    <button id="nextChap" class="nav-arrow right" title="Chương sau"><i class="fa fa-chevron-right"></i></button>
+  </main>
+
+  <!-- Footer toolbar (reordered) -->
+  <footer id="toolbar">
+    <div class="toolbar-left">
+      <button id="menuBtn" class="icon-btn" title="Mục lục"> <i class="fa fa-bars"></i> </button>
+      <button id="autoScrollBtn" class="tool icon-btn" title="Tự cuộn / Dừng"><i id="autoScrollIcon" class="fa fa-play-circle"></i></button>
+      <button id="audioBtn" class="tool icon-btn" title="Phát/ dừng audio"><i id="audioIcon" class="fa fa-volume-up"></i></button> <div id="audioPlayerContainer" style="display:none;">
+  <audio id="chapterAudio" controls>
+    <source id="audioSource" src="" type="audio/mpeg">
+    Trình duyệt của bạn không hỗ trợ phát âm thanh.
+  </audio>
+</div>
+ 
+      <button id="highlightBtnFooter" class="tool icon-btn" title="Highlight"><i class="fa fa-highlighter"></i></button>
+    </div>
+
+    <div class="toolbar-center">
+      <!-- center info (longer line + small info) -->
+      <div id="centerBar">
+        <div id="progressLineOuter"><div id="progressLineInner"></div></div>
+        <div id="smallStats">Đã đọc <span id="smallPct">0%</span> · Chương <span id="smallChap">1/1</span></div>
+      </div>
+    </div>
+
+    <div class="toolbar-right">
+      <button id="settingsBtnFooter" class="tool icon-btn" title="Cài đặt"><i class="fa fa-cog"></i></button>
+      <button id="fullscreenBtn" class="tool icon-btn" title="Toàn màn hình"><i class="fa fa-expand"></i></button>
+    </div>
+  </footer>
+
+  <!-- Hidden audio element -->
+  <audio id="audioPlayer" preload="none"></audio>
+
+<script src="main.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  init(); // Gọi init() sau khi toàn bộ DOM sẵn sàng
+});
+</script>
+</body>
+</html>
